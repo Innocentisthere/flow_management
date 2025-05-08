@@ -4,7 +4,7 @@
 
 Скачайте проект
 ```bash
-gti clone https://github.com/Innocentisthere/flow_management.git
+git clone https://github.com/Innocentisthere/flow_management.git
 ```
 
 Перейдите в папку проекта
