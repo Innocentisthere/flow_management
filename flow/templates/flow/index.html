@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Движение денег</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <!-- DataTables -->
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.13.4/css/dataTables.bootstrap5.min.css">
+</head>
+<body class="p-4">
+    
+    <div class="container">
+        <a href="{% url 'flow:manage_references' %}" class="btn btn-primary mb-4">
+            Управление справочниками
+        </a>
+
+        <h2>Фильтр</h2>
+        <form method="get">
+            <div class="filter-grid">
+                {{ filter_form.as_p }}
+            </div>
+            <button type="submit">Применить</button>
+            <a href="{% url 'flow:index' %}" style="margin-left: 10px; text-decoration: none; color: #007bff;">Сбросить</a>
+        </form>
+
+        <style>
+            .filter-grid {
+                display: grid;
+                grid-template-columns: repeat(5, 1fr);
+                gap: 20px;
+            }
+        
+            .filter-grid p {
+                margin: 0;
+            }
+        </style>
+        
+        <hr>
+
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <h2 class="m-0">Мои движения средств</h2>
+            <a href="{% url 'flow:add' %}" class="btn btn-success">Добавить запись</a>
+        </div>
+
+        <table id="moneyflowTable" class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Дата</th>
+                    <th>Статус</th>
+                    <th>Тип</th>
+                    <th>Категория</th>
+                    <th>Подкатегория</th>
+                    <th>Сумма</th>
+                    <th>Комментарий</th>
+                    <th>Действия</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for flow in flows_list %}
+                    <tr>
+                        <td>{{ flow.creation_date }}</td>
+                        <td>{{ flow.status.name }}</td>
+                        <td>{{ flow.type.name }}</td>
+                        <td>{{ flow.category.name }}</td>
+                        <td>{{ flow.subcategory.name }}</td>
+                        <td>{{ flow.amount }}</td>
+                        <td>{{ flow.comment }}</td>
+                        <td>
+                            <a href="{% url 'flow:edit' flow.pk %}" class="btn btn-sm btn-outline-primary">✏️</a>
+                            <a href="{% url 'flow:delete' flow.pk %}" class="btn btn-sm btn-outline-danger">🗑️</a>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- JS scripts -->
+    <script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.13.4/js/dataTables.bootstrap5.min.js"></script>
+    <script src="https://cdn.datatables.net/datetime/1.4.1/js/dataTables.dateTime.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.datatables.net/datetime/1.4.1/css/dataTables.dateTime.min.css" />
+
+    <script>
+        $(document).ready(function () {
+            // Custom Date Filtering using DataTables
+            const table = $('#moneyflowTable').DataTable({  
+                language: {
+                    url: '//cdn.datatables.net/plug-ins/1.13.4/i18n/ru.json'
+                },
+                order: [[0, 'desc']],
+                columnDefs: [
+                    { orderable: false, targets: [5, 6, 7] } // сумма, комментарий, действия
+                ]
+            });
+
+        });
+    </script>
+    <script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+    <script>
+        $('#id_type').change(function () {
+            const typeId = $(this).val();
+            $.ajax({
+                url: "{% url 'flow:api_categories' %}",
+                data: { type: typeId },
+                success: function (data) {
+                    const categorySelect = $('#id_category');
+                    const subcategorySelect = $('#id_subcategory');
+                    categorySelect.empty().append('<option value="">---------</option>');
+                    subcategorySelect.empty().append('<option value="">---------</option>'); // очистить подкатегории
+                    data.forEach(function (item) {
+                        categorySelect.append(`<option value="${item.id}">${item.name}</option>`);
+                    });
+                }
+            });
+        });
+    
+        $('#id_category').change(function () {
+            const categoryId = $(this).val();
+            $.ajax({
+                url: "{% url 'flow:api_subcategories' %}",
+                data: { category: categoryId },
+                success: function (data) {
+                    const subcategorySelect = $('#id_subcategory');
+                    subcategorySelect.empty().append('<option value="">---------</option>');
+                    data.forEach(function (item) {
+                        subcategorySelect.append(`<option value="${item.id}">${item.name}</option>`);
+                    });
+                }
+            });
+        });
+    </script>
+    
+
+</body>
+</html>

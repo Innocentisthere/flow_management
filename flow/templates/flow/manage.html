@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <title>Управление справочниками</title>
+    <style>
+        body {
+            font-family: sans-serif;
+            margin: 40px;
+            background-color: #f8f9fa;
+        }
+
+        h1 {
+            margin-bottom: 30px;
+        }
+
+        .messages {
+            list-style: none;
+            padding: 10px;
+            margin-bottom: 20px;
+            border: 1px solid #f5c6cb;
+            background-color: #f8d7da;
+            color: #721c24;
+            border-radius: 4px;
+        }
+
+        .messages li {
+            margin-bottom: 5px;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+        }
+
+        .card {
+            background: white;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+
+        h2 {
+            margin-top: 0;
+            font-size: 18px;
+        }
+
+        form {
+            margin-bottom: 20px;
+        }
+
+        ul {
+            padding-left: 20px;
+        }
+
+        li {
+            margin-bottom: 10px;
+        }
+
+        button {
+            background-color: #007bff;
+            color: white;
+            border: none;
+            padding: 6px 10px;
+            cursor: pointer;
+            border-radius: 4px;
+            font-size: 14px;
+        }
+
+        button:hover {
+            background-color: #0056b3;
+        }
+
+        form.inline {
+            display: inline;
+        }
+
+        .back-button {
+            display: inline-block;
+            margin-bottom: 20px;
+            background-color: #6c757d;
+            color: white;
+            padding: 6px 12px;
+            text-decoration: none;
+            border-radius: 4px; 
+            font-size: 14px;
+        }
+
+        .back-button:hover {
+            background-color: #5a6268;
+        }
+    </style>
+    
+</head>
+<body>
+<a href="{% url 'flow:index' %}" class="back-button">← Назад на главную</a>
+
+{% if messages %}
+    <ul class="messages">
+        {% for message in messages %}
+            <li>{{ message }}</li>
+        {% endfor %}
+    </ul>
+{% endif %}
+
+<div class="grid">
+    <!-- Статусы -->
+    <div class="card">
+        <h2>Статусы</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ status_form.as_p }}
+            <button type="submit" name="submit_status">Добавить</button>
+        </form>
+        <ul>
+            {% for s in statuses %}
+                <li>
+                    {{ s.name }}
+                    <form method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" name="delete_status" value="{{ s.id }}">Удалить</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Типы -->
+    <div class="card">
+        <h2>Типы</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ type_form.as_p }}
+            <button type="submit" name="submit_type">Добавить</button>
+        </form>
+        <ul>
+            {% for t in types %}
+                <li>
+                    {{ t.name }}
+                    <form method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" name="delete_type" value="{{ t.id }}">Удалить</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Категории -->
+    <div class="card">
+        <h2>Категории</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ category_form.as_p }}
+            <button type="submit" name="submit_category">Добавить</button>
+        </form>
+        <ul>
+            {% for c in categories %}
+                <li>
+                    {{ c.name }} ({{ c.type.name }})
+                    <form method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" name="delete_category" value="{{ c.id }}">Удалить</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+
+    <!-- Подкатегории -->
+    <div class="card">
+        <h2>Подкатегории</h2>
+        <form method="post">
+            {% csrf_token %}
+            {{ subcategory_form.as_p }}
+            <button type="submit" name="submit_subcategory">Добавить</button>
+        </form>
+        <ul>
+            {% for s in subcategories %}
+                <li>
+                    {{ s.name }} ({{ s.category.name }})
+                    <form method="post" class="inline">
+                        {% csrf_token %}
+                        <button type="submit" name="delete_subcategory" value="{{ s.id }}">Удалить</button>
+                    </form>
+                </li>
+            {% endfor %}
+        </ul>
+    </div>
+</div>
+
+</body>
+</html>
